@@ -1,0 +1,1 @@
+Add handlers preview_update and request_update in worker.py
