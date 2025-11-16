@@ -1,1 +1,5 @@
 requests
+flask
+pyyaml
+packaging
+psutil
