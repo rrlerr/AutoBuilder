@@ -1,2 +1,172 @@
 <!doctype html>
-<html><body><h1>AI Update Manager</h1></body></html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>AI Update Manager</title>
+  <style>
+    body {
+      font-family: system-ui, Arial;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+    }
+
+    header {
+      background: #1f2937;
+      color: white;
+      padding: 16px;
+      font-size: 22px;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 160px;
+      font-family: monospace;
+      padding: 10px;
+      box-sizing: border-box;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      resize: vertical;
+      background: white;
+    }
+
+    input[type=text] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 6px;
+      margin-bottom: 12px;
+      border-radius: 5px;
+      box-sizing: border-box;
+      border: 1px solid #aaa;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      background: #2563eb;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    #log {
+      background: #0d1117;
+      color: #c9d1d9;
+      white-space: pre-wrap;
+      padding: 12px;
+      height: 350px;
+      overflow: auto;
+      margin-top: 20px;
+      border-radius: 6px;
+      border: 1px solid #30363d;
+    }
+
+    .label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<header>AI Update Manager</header>
+
+<div class="container">
+
+  <label class="label">Describe the new feature or fix you want:</label>
+  <textarea id="request" placeholder="Example: Add dark mode with a toggle in settings."></textarea>
+
+  <label class="label">Your OpenAI API Key:</label>
+  <input id="openai_key" type="text" placeholder="sk-..." />
+
+  <label class="label">Your GitHub Personal Access Token:</label>
+  <input id="gh_token" type="text" placeholder="ghp_..." />
+
+  <label class="label">GitHub Username (owner):</label>
+  <input id="gh_owner" type="text" placeholder="your-username" />
+
+  <label class="label">GitHub Repository Name:</label>
+  <input id="gh_repo" type="text" placeholder="AutoBuilder" />
+
+  <button id="preview">Preview Patch</button>
+  <button id="send">Create PR Update</button>
+  <button id="clear">Clear Log</button>
+
+  <div id="log">Waiting for input...</div>
+
+</div>
+
+<script>
+  const logEl = document.getElementById('log');
+
+  function appendLog(t) {
+    logEl.textContent += "\n" + t;
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  document.getElementById('clear').onclick = () => {
+    logEl.textContent = "";
+  };
+
+  document.getElementById('preview').onclick = async () => {
+    const req = document.getElementById('request').value;
+    const openai = document.getElementById('openai_key').value;
+
+    if (!req || !openai) {
+      alert("Please enter your request + OpenAI key.");
+      return;
+    }
+
+    appendLog("Sending preview request...");
+    const res = await window.electronAPI.sendCmd({
+      cmd: "preview_update",
+      request: req,
+      openai_key: openai
+    });
+
+    appendLog("Preview response:");
+    appendLog(JSON.stringify(res, null, 2));
+  };
+
+  document.getElementById('send').onclick = async () => {
+    const req = document.getElementById('request').value;
+    const openai = document.getElementById('openai_key').value;
+    const gh = document.getElementById('gh_token').value;
+    const owner = document.getElementById('gh_owner').value;
+    const repo = document.getElementById('gh_repo').value;
+
+    if (!req || !openai || !gh || !owner || !repo) {
+      alert("Please fill all fields before sending.");
+      return;
+    }
+
+    appendLog("Sending update request...");
+    const res = await window.electronAPI.sendCmd({
+      cmd: "request_update",
+      request: req,
+      openai_key: openai,
+      gh_token: gh,
+      gh_owner: owner,
+      gh_repo: repo
+    });
+
+    appendLog("PR Response:");
+    appendLog(JSON.stringify(res, null, 2));
+  };
+</script>
+
+</body>
+</html>
