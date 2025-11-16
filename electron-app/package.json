@@ -1,0 +1,32 @@
+{
+  "name": "auto-builder-desktop",
+  "version": "1.0.0",
+  "description": "Auto Builder Desktop App - Electron + Python backend",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "electron .",
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.autobuilder.app",
+    "files": [
+      "src/**/*",
+      "public/**/*",
+      "../python-worker/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    }
+  },
+  "dependencies": {
+    "electron-is-dev": "^2.0.0",
+    "node-fetch": "^2.6.7",
+    "electron-updater": "^5.4.4"
+  },
+  "devDependencies": {
+    "electron": "^26.0.0",
+    "electron-builder": "^24.6.0"
+  }
+}
